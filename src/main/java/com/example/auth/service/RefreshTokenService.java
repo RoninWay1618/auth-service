@@ -1,42 +1,56 @@
 package com.example.auth.service;
 
-import com.example.auth.entity.RefreshToken;
-import com.example.auth.entity.User;
+import com.example.auth.model.RefreshToken;
+import com.example.auth.model.User;
 import com.example.auth.repository.RefreshTokenRepository;
+import com.example.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class RefreshTokenService {
-    private final RefreshTokenRepository repo;
-    private final long refreshExpMs;
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpiration;
 
-    public RefreshTokenService(
-            RefreshTokenRepository repo,
-            @Value("${jwt.refresh-expiration-ms}") long refreshExpMs
-    ) {
-        this.repo = repo;
-        this.refreshExpMs = refreshExpMs;
+    private final RefreshTokenRepository tokenRepo;
+    private final UserRepository userRepo;
+
+    public RefreshTokenService(RefreshTokenRepository tokenRepo, UserRepository userRepo) {
+        this.tokenRepo = tokenRepo;
+        this.userRepo = userRepo;
     }
 
-    public RefreshToken create(User user) {
-        RefreshToken t = new RefreshToken();
-        t.setId(UUID.randomUUID().toString());
-        t.setUser(user);
-        t.setCreatedAt(Instant.now());
-        t.setExpiresAt(Instant.now().plusMillis(refreshExpMs));
-        return repo.save(t);
+    @Transactional
+    public RefreshToken createRefreshToken(String username, String tokenStr) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        tokenRepo.deleteByUser(user);
+
+        RefreshToken rt = new RefreshToken();
+        rt.setUser(user);
+        rt.setToken(tokenStr);
+        rt.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
+        return tokenRepo.save(rt);
     }
 
-    public RefreshToken verify(String id) {
-        return repo.findByIdAndExpiresAtAfter(id, Instant.now())
-                .orElseThrow(() -> new RuntimeException("Invalid or expired refresh token"));
+    public Optional<RefreshToken> findByToken(String token) {
+        return tokenRepo.findByToken(token);
     }
 
-    public void revokeByUser(User user) {
-        repo.deleteByUserId(user.getId());
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().isBefore(Instant.now())) {
+            tokenRepo.delete(token);
+            throw new RuntimeException("Refresh token expired");
+        }
+        return token;
+    }
+
+    @Transactional
+    public int deleteByToken(String token) {
+        return tokenRepo.deleteByToken(token);
     }
 }

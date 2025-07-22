@@ -14,23 +14,33 @@
 
 ## Эндпоинты
 
-- POST /api/auth/register
+- POST http://localhost:8080/auth/register
     ```json
-    { "login":"user1", "email":"user1@example.com", "password":"123456" }
-- POST /api/auth/login
+    { 
+    "username": "john_doe",
+    "password": "P@ssw0rd!",
+    "email": "john.doe@example.com" 
+    }
+- POST http://localhost:8080/auth/login
     ```json
-    { "login":"user1", "password":"123456" }
-- POST /api/auth/refresh
+    {
+    "username": "john_doe",
+    "password": "P@ssw0rd!"
+    }
+- POST http://localhost:8080/auth/refresh
     ```json
-    { "refreshToken":"<uuid>" }
-- POST /api/auth/logout
+    {
+    "refreshToken": "<REFRESH_TOKEN>"
+    }
+- POST http://localhost:8080/auth/logout
     ```json
-    { "refreshToken":"<uuid>" }
+    {
+    "refreshToken": "<REFRESH_TOKEN>"
+    }
 
 ## Конфигурация
 Настройки в application.yaml:
    ```yaml
-    jwt:
-        secret: verySecretKeyChangeMe
-        expiration-ms: 3600000
-        refresh-expiration-ms: 8640000
+        jwt.secret=YourVerySecretKeyChangeThis
+        jwt.access.expiration=900000
+        jwt.refresh.expiration=604800000

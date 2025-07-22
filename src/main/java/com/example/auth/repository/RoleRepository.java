@@ -1,6 +1,6 @@
 package com.example.auth.repository;
 
-import com.example.auth.entity.Role;
+import com.example.auth.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
