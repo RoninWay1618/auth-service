@@ -7,11 +7,14 @@
 1. Соберите JAR:
    ```bash
    mvn clean package
-2. Запустите:
+2. Запустите :
+   ```bash
+   mvn spring-boot:run
+3. Запустите:
     ```bash
     docker-compose up -d --build
-3. Запустите команды в файле data.sql
-4. Сервис доступен на http://localhost:8080.
+4. Запустите команды в файле data.sql
+5. Сервис доступен на http://localhost:8080.
 
 ## Эндпоинты
 
