@@ -10,7 +10,8 @@
 2. Запустите:
     ```bash
     docker-compose up -d --build
-3. Сервис доступен на http://localhost:8080.
+3. Запустите команды в файле data.sql
+4. Сервис доступен на http://localhost:8080.
 
 ## Эндпоинты
 
